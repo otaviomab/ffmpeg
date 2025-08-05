@@ -167,6 +167,14 @@ func convertAudio(inputData []byte, format string, speed float64) ([]byte, int, 
 	}
 
 	switch format {
+	case "mp3":
+		// MP3 format
+		args := []string{"-i", "pipe:0", "-vn", "-c:a", "libmp3lame", "-b:a", "128k"}
+		if len(audioFilter) > 0 {
+			args = append(args, audioFilter...)
+		}
+		args = append(args, "-f", "mp3", "pipe:1")
+		cmd = exec.Command("ffmpeg", args...)
 	case "mp4":
 		// Special handling for MP4
 		args := []string{"-i", "pipe:0", "-vn", "-c:a", "aac", "-b:a", "128k"}
@@ -176,7 +184,7 @@ func convertAudio(inputData []byte, format string, speed float64) ([]byte, int, 
 		args = append(args, "-f", "adts", "pipe:1")
 		cmd = exec.Command("ffmpeg", args...)
 	default:
-		// Any other audio format (e.g., .oga, .ogg, .mp3, .mp4, .m4a, .wav, etc.)
+		// OGG/Opus format (default)
 		args := []string{"-i", "pipe:0", "-f", "ogg", "-vn", "-c:a", "libopus", "-avoid_negative_ts", "make_zero", "-b:a", "128k", "-ar", "48000", "-ac", "1"}
 		if len(audioFilter) > 0 {
 			args = append(args, audioFilter...)
